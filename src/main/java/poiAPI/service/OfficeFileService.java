@@ -11,6 +11,8 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 import poiAPI.office.samples.doc.PersonsDocx;
 import poiAPI.office.samples.excel.PersonsXlsx;
+import poiAPI.office.samples.excel.TestVolumeXlsx;
+import poiAPI.office.samples.excel.TestVolumeXlsxSx;
 import poiAPI.office.samples.pdf.PersonsPdf;
 import poiAPI.repository.PersonRepository;
 
@@ -36,8 +38,13 @@ public class OfficeFileService {
             } else if ("person.pdf".equals(fileName)) {
                 PersonsPdf personsPdf = new PersonsPdf(entityManager, session);
                 personsPdf.createFile(absolutePath);
+            } else if (fileName.startsWith("test_volume_") && fileName.endsWith(".xlsx")) {
+//                TestVolumeXlsx testVolumeXlsx = new TestVolumeXlsx(entityManager, session);
+//                testVolumeXlsx.createFile(absolutePath);
+                TestVolumeXlsxSx testVolumeXlsxSx = new TestVolumeXlsxSx(entityManager, session);
+                testVolumeXlsxSx.createFile(absolutePath);
             }
-             if (fileSystemResource.exists() || fileSystemResource.isReadable()) {
+            if (fileSystemResource.exists() || fileSystemResource.isReadable()) {
                 return fileSystemResource;
             } else {
                 throw new RuntimeException("Could not read the file!");

@@ -1,0 +1,154 @@
+package poiAPI.office.samples.excel;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Tuple;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.hibernate.Session;
+import poiAPI.model.Person;
+import poiAPI.office.samples.pdf.PersonsPdf;
+
+@RequiredArgsConstructor
+public class TestVolumeXlsx {
+
+    private final EntityManager entityManager;
+    private final Session session;
+
+    private record OwnershipRecord(String lastName, String firstName, String address, Integer percent,
+                                   Integer percent1, Integer percent2, Integer percent3, Integer percent4, Integer percent5,
+                                   Integer percent6, Integer percent7, Integer percent8, Integer percent9,
+                                   String name1, String name2, String name3, String name4, String name5,
+                                   String name6, String name7, String name8, String name9,
+                                   String nick1, String nick2, String nick3, String nick4, String nick5) {
+    }
+
+    public void createFile(String fileLocation) throws IOException {
+
+        System.out.println("createFile start " + fileLocation);
+
+        List<TestVolumeXlsx.OwnershipRecord> ownershipQuery = session.createNativeQuery(
+                        "select person.last_name, person.first_name, house.address, ownership.percent, " +
+                                "ownership.percent1, ownership.percent2, ownership.percent3, ownership.percent4, ownership.percent5, " +
+                                "ownership.percent6, ownership.percent7, ownership.percent8, ownership.percent9, " +
+                                "ownership.name1, ownership.name2, ownership.name3, ownership.name4, ownership.name5, " +
+                                "ownership.name6, ownership.name7, ownership.name8, ownership.name9, " +
+                                "ownership.nick1, ownership.nick2, ownership.nick3, ownership.nick4, ownership.nick5, " +
+                                " from poi_person person, poi_ownership ownership, poi_house house" +
+                                " where ownership.person_id = person.id and ownership.house_id = house.id")
+                .setTupleTransformer((tuples, aliases) -> {
+                    TestVolumeXlsx.OwnershipRecord ownershipRecord = new TestVolumeXlsx.OwnershipRecord((String) tuples[0], (String) tuples[1], (String) tuples[2], (Integer) tuples[3],
+                            (Integer) tuples[4], (Integer) tuples[5], (Integer) tuples[6], (Integer) tuples[7], (Integer) tuples[8],
+                            (Integer) tuples[8], (Integer) tuples[10], (Integer) tuples[11], (Integer) tuples[12],
+                            (String) tuples[13], (String) tuples[14], (String) tuples[15], (String) tuples[16], (String) tuples[17],
+                            (String) tuples[18], (String) tuples[19], (String) tuples[20], (String) tuples[21],
+                            (String) tuples[22], (String) tuples[23], (String) tuples[24], (String) tuples[25], (String) tuples[26]);
+                    return ownershipRecord;
+                })
+                .getResultList();
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Ownership");
+        sheet.setColumnWidth(0, 4000);
+        sheet.setColumnWidth(1, 4000);
+        sheet.setColumnWidth(2, 4000);
+        sheet.setColumnWidth(3, 4000);
+        Row header = sheet.createRow(0);
+        CellStyle headerStyle = workbook.createCellStyle();
+        headerStyle.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        XSSFFont font = ((XSSFWorkbook) workbook).createFont();
+        font.setFontName("Arial");
+        font.setFontHeightInPoints((short) 16);
+        font.setBold(true);
+        headerStyle.setFont(font);
+        Cell headerCell = header.createCell(0);
+        headerCell.setCellValue("lastName");
+        headerCell.setCellStyle(headerStyle);
+        headerCell = header.createCell(1);
+        headerCell.setCellValue("firstName");
+        headerCell.setCellStyle(headerStyle);
+        headerCell = header.createCell(2);
+        headerCell.setCellValue("address");
+        headerCell.setCellStyle(headerStyle);
+        headerCell = header.createCell(3);
+        headerCell.setCellValue("percent");
+        headerCell.setCellStyle(headerStyle);
+        CellStyle style = workbook.createCellStyle();
+        style.setWrapText(true);
+        int i = 1;
+        for (int j = 0; j < 25000; ++j) {
+            for (TestVolumeXlsx.OwnershipRecord ownershipRecord : ownershipQuery) {
+                ++i;
+                Row row = sheet.createRow(i);
+                Cell cell = row.createCell(0);
+                cell.setCellValue(ownershipRecord.lastName);
+                cell.setCellStyle(style);
+                cell = row.createCell(1);
+                cell.setCellValue(ownershipRecord.firstName);
+                cell.setCellStyle(style);
+                cell = row.createCell(2);
+                cell.setCellValue(ownershipRecord.address);
+                cell.setCellStyle(style);
+                cell = row.createCell(3);
+                cell.setCellValue(ownershipRecord.percent);
+                cell.setCellStyle(style);
+                cell = row.createCell(4);
+                cell.setCellValue(ownershipRecord.percent1);
+                cell.setCellStyle(style);
+                cell = row.createCell(5);
+                cell.setCellValue(ownershipRecord.percent2);
+                cell.setCellStyle(style);
+                cell = row.createCell(6);
+                cell.setCellValue(ownershipRecord.percent3);
+                cell.setCellStyle(style);
+                cell = row.createCell(7);
+                cell.setCellValue(ownershipRecord.percent4);
+                cell.setCellStyle(style);
+                cell = row.createCell(8);
+                cell.setCellValue(ownershipRecord.percent5);
+                cell.setCellStyle(style);
+                cell = row.createCell(9);
+                cell.setCellValue(ownershipRecord.percent6);
+                cell.setCellStyle(style);
+                cell = row.createCell(10);
+                cell.setCellValue(ownershipRecord.percent7);
+                cell.setCellStyle(style);
+                cell = row.createCell(11);
+                cell.setCellValue(ownershipRecord.percent8);
+                cell.setCellStyle(style);
+                cell = row.createCell(12);
+                cell.setCellValue(ownershipRecord.percent9);
+                cell.setCellStyle(style);
+                cell = row.createCell(13);
+                cell.setCellValue(ownershipRecord.name1);
+                cell.setCellStyle(style);
+                cell = row.createCell(14);
+                cell.setCellValue(ownershipRecord.name2);
+                cell.setCellStyle(style);
+                cell = row.createCell(15);
+                cell.setCellValue(ownershipRecord.name3);
+                cell.setCellStyle(style);
+            }
+        }
+        FileOutputStream outputStream = new FileOutputStream(fileLocation);
+        System.out.println("before workbook.write(outputStream) ");
+        workbook.write(outputStream);
+        //workbook.dispose();
+        outputStream.close();
+        System.out.println("createFile end " + fileLocation);
+        workbook.close();
+    }
+
+}

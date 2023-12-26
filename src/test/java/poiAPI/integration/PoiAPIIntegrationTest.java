@@ -72,4 +72,17 @@ public class PoiAPIIntegrationTest {
         assertNotNull(file);
     }
 
+    @Test
+    @Order(4)
+    void testXlsxFileVolume() {
+        String url = baseUrl + "/files/" + "test_volume_50.xlsx";
+        File file = restTemplate.execute(url, HttpMethod.GET, null, clientHttpResponse -> {
+            File ret = new File("test_volume_50.xlsx");
+            StreamUtils.copy(clientHttpResponse.getBody(), new FileOutputStream(ret));
+            return ret;
+        });
+        log.info("File created: " + file.getName() + file.getAbsolutePath());
+        assertNotNull(file);
+    }
+
 }
