@@ -4,7 +4,6 @@ import jakarta.persistence.EntityManager;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
@@ -14,9 +13,7 @@ import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFFont;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.hibernate.Session;
 
@@ -58,6 +55,12 @@ public class TestVolumeXlsxSx {
                 })
                 .getResultList();
 
+        System.out.println("ownershipRecord");
+        for (TestVolumeXlsxSx.OwnershipRecord ownershipRecord : ownershipQuery) {
+            System.out.println(ownershipRecord.lastName);
+            System.out.println("ownershipRecord.lastName");
+        }
+
         SXSSFWorkbook workbook = new SXSSFWorkbook(100);
         Sheet sheet = workbook.createSheet("Ownership");
         sheet.setColumnWidth(0, 4000);
@@ -87,18 +90,32 @@ public class TestVolumeXlsxSx {
         headerCell.setCellStyle(headerStyle);
         CellStyle style = workbook.createCellStyle();
         style.setWrapText(true);
+        CellStyle styleNoBold = workbook.createCellStyle();
+        styleNoBold.setWrapText(true);
+        CellStyle styleBold = workbook.createCellStyle();
+        styleBold.setWrapText(true);
         CellStyle styleDouble = workbook.createCellStyle();
         DataFormat format = workbook.createDataFormat();
         styleDouble.setDataFormat(format.getFormat("0.00"));
-        BigDecimal bdOne = new BigDecimal(1.0d);
-        BigDecimal bdFromDouble = new BigDecimal(0.1d);
-        BigDecimal bdToSum = new BigDecimal(0.0d);
+        styleDouble.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
+        styleDouble.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        BigDecimal bigDecimalbdOne = new BigDecimal(1.0d);
+        BigDecimal bigDecimalFromDouble = new BigDecimal(0.1d);
+        BigDecimal bigDecimalToSum = new BigDecimal(0.0d);
+        XSSFFont styleBoldFont = (XSSFFont) workbook.createFont();
+        styleBoldFont.setBold(true);
+        styleBold.setFont(styleBoldFont);
         int i = 1;
         for (int j = 0; j < 50000; ++j) {
             for (TestVolumeXlsxSx.OwnershipRecord ownershipRecord : ownershipQuery) {
                 ++i;
-                bdFromDouble = bdFromDouble.add(bdOne);
-                bdToSum = bdToSum.add(bdFromDouble);
+                if ((i % 10) == 0) {
+                    style = styleBold;
+                } else {
+                    style = styleNoBold;
+                }
+                bigDecimalFromDouble = bigDecimalFromDouble.add(bigDecimalbdOne);
+                bigDecimalToSum = bigDecimalToSum.add(bigDecimalFromDouble);
                 Row row = sheet.createRow(i);
                 Cell cell = row.createCell(0);
                 cell.setCellValue(ownershipRecord.lastName);
@@ -173,13 +190,13 @@ public class TestVolumeXlsxSx {
                 cell.setCellValue(ownershipRecord.nick5);
                 cell.setCellStyle(style);
                 cell = row.createCell(27);
-                cell.setCellValue(bdFromDouble.toString());
+                cell.setCellValue(bigDecimalFromDouble.toString());
                 cell.setCellStyle(style);
             }
             ++i;
             Row row = sheet.createRow(i);
             Cell cell = row.createCell(27);
-            cell.setCellValue(bdToSum.toString());
+            cell.setCellValue(bigDecimalToSum.toString());
             cell.setCellStyle(style);
         }
         FileOutputStream outputStream = new FileOutputStream(fileLocation);
