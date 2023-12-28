@@ -10,7 +10,9 @@ import org.hibernate.Session;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 import poiAPI.office.samples.doc.PersonsDocx;
+import poiAPI.office.samples.excel.HibernateCursorXlsxSx;
 import poiAPI.office.samples.excel.PersonsXlsx;
+import poiAPI.office.samples.excel.PostgreCursorXlsxSx;
 import poiAPI.office.samples.excel.TestVolumeXlsx;
 import poiAPI.office.samples.excel.TestVolumeXlsxSx;
 import poiAPI.office.samples.pdf.PersonsPdf;
@@ -43,6 +45,12 @@ public class OfficeFileService {
 //                testVolumeXlsx.createFile(absolutePath);
                 TestVolumeXlsxSx testVolumeXlsxSx = new TestVolumeXlsxSx(entityManager, session);
                 testVolumeXlsxSx.createFile(absolutePath);
+            } else if ("postgre_cursor.xlsx".equals(fileName)) {
+                PostgreCursorXlsxSx postgreCursorXlsxSx = new PostgreCursorXlsxSx(entityManager, session);
+                postgreCursorXlsxSx.createFile(absolutePath);
+            } else if ("hibernate_cursor.xlsx".equals(fileName)) {
+                HibernateCursorXlsxSx hibernateCursorXlsxSx = new HibernateCursorXlsxSx(entityManager, session);
+                hibernateCursorXlsxSx.createFile(absolutePath);
             }
             if (fileSystemResource.exists() || fileSystemResource.isReadable()) {
                 return fileSystemResource;

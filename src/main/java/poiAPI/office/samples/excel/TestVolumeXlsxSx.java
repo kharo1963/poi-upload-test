@@ -41,7 +41,7 @@ public class TestVolumeXlsxSx {
                                 "ownership.percent6, ownership.percent7, ownership.percent8, ownership.percent9, " +
                                 "ownership.name1, ownership.name2, ownership.name3, ownership.name4, ownership.name5, " +
                                 "ownership.name6, ownership.name7, ownership.name8, ownership.name9, " +
-                                "ownership.nick1, ownership.nick2, ownership.nick3, ownership.nick4, ownership.nick5, " +
+                                "ownership.nick1, ownership.nick2, ownership.nick3, ownership.nick4, ownership.nick5 " +
                                 " from poi_person person, poi_ownership ownership, poi_house house" +
                                 " where ownership.person_id = person.id and ownership.house_id = house.id")
                 .setTupleTransformer((tuples, aliases) -> {
