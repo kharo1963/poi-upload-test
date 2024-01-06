@@ -2,7 +2,6 @@ package poiAPI.office.samples.excel;
 
 import jakarta.persistence.EntityManager;
 import java.io.IOException;
-import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -11,8 +10,11 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
+
+import static com.sun.xml.internal.ws.encoding.SOAPBindingCodec.UTF8_ENCODING;
 
 @RequiredArgsConstructor
 public class PostgreCursorXlsxSx {
@@ -34,13 +36,34 @@ public class PostgreCursorXlsxSx {
             System.out.println("statement.getFetchDirection():" + statement.getFetchDirection());
             System.out.println("statement.getMaxFieldSize():" + statement.getMaxFieldSize());
             ResultSet resultSet = statement.executeQuery("SELECT * FROM poi_person");
+
+            ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+
             Class resultSetClass = resultSet.getClass();
             Field currentRowField = resultSetClass.getDeclaredField("currentRow");
             currentRowField.setAccessible(true);
             Object currentRowValur = currentRowField.get(resultSet);
-
             System.out.println("resultSet.currentRow " + currentRowValur);
-            ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+            Field rowsField = resultSetClass.getDeclaredField("rows");
+            rowsField.setAccessible(true);
+            Object rowsSize = ((List) rowsField.get(resultSet)).size();
+            System.out.println("resultSet.rowsSize " + rowsSize);
+            List<Object> bytesList = (List<Object>) rowsField.get(resultSet);
+            System.out.println("bytesList " + bytesList);
+            for (int i = 0; i < (int) rowsSize; ++i) {
+                Class bytesListClass = (bytesList.get(i)).getClass();
+                System.out.println("bytesListClass " + bytesListClass);
+                Field dataField = bytesListClass.getDeclaredField("data");
+                System.out.println("dataField " + dataField);
+                dataField.setAccessible(true);
+                byte[][] bytes = (byte[][]) dataField.get(bytesList.get(i));
+                for (int j = 0; j < resultSetMetaData.getColumnCount(); j++) {
+                    System.out.println("bytes[" + j + "] "  + bytes[j]);
+                    String encodedString = new String(bytes[j], 0, bytes[j].length, UTF8_ENCODING);
+                    System.out.println("encodedString "  + encodedString);
+                }
+                System.out.println("bytes " + bytes);
+            }
             for (int i = 1; i <= resultSetMetaData.getColumnCount(); i++) {
                 System.out.println(String.format("-- Column %d --", i));
                 System.out.println(String.format("Column name: %s", resultSetMetaData.getColumnName(i)));
@@ -66,7 +89,7 @@ public class PostgreCursorXlsxSx {
         }
     }
 
-    private void createTestData (Connection connection, int dataCount) {
+    private void createTestData(Connection connection, int dataCount) {
         try {
             connection.setAutoCommit(false);
         } catch (SQLException e) {
@@ -93,5 +116,6 @@ public class PostgreCursorXlsxSx {
             }
         }
     }
+
 }
 
