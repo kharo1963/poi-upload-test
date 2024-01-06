@@ -2,6 +2,8 @@ package poiAPI.office.samples.excel;
 
 import jakarta.persistence.EntityManager;
 import java.io.IOException;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -27,7 +29,17 @@ public class PostgreCursorXlsxSx {
             Statement statement = connection.createStatement();
             // Turn use of the cursor on.
             statement.setFetchSize(2);
+            System.out.println("statement.getQueryTimeout():" + statement.getQueryTimeout());
+            System.out.println("statement.getFetchSize():" + statement.getFetchSize());
+            System.out.println("statement.getFetchDirection():" + statement.getFetchDirection());
+            System.out.println("statement.getMaxFieldSize():" + statement.getMaxFieldSize());
             ResultSet resultSet = statement.executeQuery("SELECT * FROM poi_person");
+            Class resultSetClass = resultSet.getClass();
+            Field currentRowField = resultSetClass.getDeclaredField("currentRow");
+            currentRowField.setAccessible(true);
+            Object currentRowValur = currentRowField.get(resultSet);
+
+            System.out.println("resultSet.currentRow " + currentRowValur);
             ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
             for (int i = 1; i <= resultSetMetaData.getColumnCount(); i++) {
                 System.out.println(String.format("-- Column %d --", i));
@@ -46,6 +58,10 @@ public class PostgreCursorXlsxSx {
             }
             resultSet.close();
         } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
